@@ -1,9 +1,9 @@
 const express =require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const corsOptions = {
-    origin: ["http://localhost:5173/"],
-}
+// const corsOptions = {
+//     origin: "http://localhost:5173/",
+// }
 
 const app = express();
 const port = 8080;
@@ -12,8 +12,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(cors())
 // app.use(cors(corsOptions))
-// app.use(express.static("public"));
-// app.use(bodyParser.urlencoded({extended:true}))
+
 
 var notesArray = [];
 
