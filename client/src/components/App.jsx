@@ -48,6 +48,7 @@ function App() {
       });
       return newNoteList;
     })
+    console.log(`delete: ${newNoteList}`)
     postNotes(newNoteList);
   }
 
