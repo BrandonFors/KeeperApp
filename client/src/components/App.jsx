@@ -36,9 +36,10 @@ function App() {
           content: note.content,
         },
       ];
+      postNotes(newNoteList);
       return newNoteList;
     });
-    postNotes(newNoteList);
+    
   }
   function deleteNote(id) {
     var newNoteList;
@@ -46,10 +47,11 @@ function App() {
       newNoteList =  prevValue.filter((note, index) => {
         return id !== index;
       });
+      console.log(`delete: ${newNoteList}`)
+      postNotes(newNoteList);
       return newNoteList;
     })
-    console.log(`delete: ${newNoteList}`)
-    postNotes(newNoteList);
+    
   }
 
   return (
