@@ -101,3 +101,41 @@ form.create-note button {
   cursor: pointer;
   outline: none;
 }
+
+.note-input {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 6px;
+  font-size: 1.1em;
+  font-weight: bold;
+  font-family: inherit;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  outline: none;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.note-input:focus {
+  border: 1px solid #f5ba13;
+  box-shadow: 0 0 5px rgba(245, 186, 19, 0.5);
+}
+
+.note-textarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 6px;
+  font-size: 1.1em;
+  font-family: inherit;
+  min-height: 60px;
+  resize: vertical;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  outline: none;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.note-textarea:focus {
+  border: 1px solid #f5ba13;
+  box-shadow: 0 0 5px rgba(245, 186, 19, 0.5);
+}

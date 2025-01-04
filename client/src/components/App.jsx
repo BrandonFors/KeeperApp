@@ -13,45 +13,64 @@ function App() {
     const response = await axios.get("http://localhost:8080/notes");
     setNotes(response.data.notes);
   };
-  //notes doesn't update immediately after setNotes is run(?) => we must use data input
-  const postNotes = async (data)=>{
-    const postData = {
-      notes: data
-    }
-    console.log(postData)
-    const response = await axios.post("http://localhost:8080/notes",postData);
-  }
 
   useEffect(()=>{
     getNotes();
   },[])
 
-  function addNote(note) {
-    var newNoteList;
+  async function addNote(note) {
+
+    const postData = {
+      title: note.title,
+      content: note.content,
+    }
+    const response = await axios.post("http://localhost:8080/new",postData);
+    const newNote = {
+      id:response.data.id,
+      title: note.title,
+      content: note.content,
+    }
     setNotes((prevValue) => {
-      newNoteList = [
-        ...prevValue,
-        {
-          title: note.title,
-          content: note.content,
-        },
-      ];
-      postNotes(newNoteList);
-      return newNoteList;
+      return [...prevValue,newNote];
     });
-    
   }
-  function deleteNote(id) {
+
+  async function deleteNote(id) {
     var newNoteList;
+    const postData = {
+      id:id 
+    }
+    const response = await axios.post("http://localhost:8080/delete",postData);
+
     setNotes((prevValue) => {
       newNoteList =  prevValue.filter((note, index) => {
-        return id !== index;
+        return id !== note.id;
       });
-      console.log(`delete: ${newNoteList}`)
-      postNotes(newNoteList);
+      
       return newNoteList;
     })
     
+  }
+  async function editNote(id, title, content) {
+    const postData = {
+      id:id,
+      title:title,
+      content:content
+    }
+    const response = await axios.post("http://localhost:8080/update",postData);
+    setNotes((prevValue) => {
+      const newNoteList = prevValue.map((note, index) => {
+        if (note.id === id) {
+          return {
+            id:id,
+            title: title,
+            content: content,
+          };
+        }
+        return note; 
+      });
+      return newNoteList; 
+    });
   }
 
   return (
@@ -62,10 +81,11 @@ function App() {
         return (
           <Note
             key={index}
-            id={index}
+            id={note.id}
             title={note.title}
             content={note.content}
             deleteNote={deleteNote}
+            editNote = {editNote}
           />
         );
       })}
