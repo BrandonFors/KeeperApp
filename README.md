@@ -1,1 +1,1 @@
-Small project as part of a React course. Currently experimenting with different npm modules. Adding a backend.
+Initially created as part of a React course but I have now added aditional functionality as well as an Node/Express backend with a PostgreSQL database. The next step would be to add a way for users to login and create their own set of notes distinguishable from other users.  
