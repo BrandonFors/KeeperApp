@@ -23,8 +23,13 @@ const db = new pg.Client({
     port: 5432,
 });
 
-db.connect();
+try{
+  db.connect();
+}catch(error){
+  console.error("Error connecting to db:",error);
+  process.exit(1);
 
+}
 
 app.get("/notes", async (req,res)=>{
     const result = await db.query("SELECT * FROM notes");
