@@ -57,7 +57,7 @@ function CreateArea(props) {
         }
         
         <Zoom in = {titleClicked}>
-          <Fab type="submit">
+          <Fab type="submit" disabled = {props.showLogin}>
             <AddIcon />
           </Fab>
         </Zoom>

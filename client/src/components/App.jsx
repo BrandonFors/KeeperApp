@@ -3,12 +3,15 @@ import Header from "./Header";
 import Footer from "./Footer";
 import Note from "./Note";
 import CreateArea from "./CreateArea";
+import Login from "./Login";
 import axios from "axios";
 import "../../public/styles.css";
 function App() {
   //state changes visible on next render
   const [notes, setNotes] = useState([]);
-  
+  const [showLogin, setShowLogin] = useState(false);
+  const [username, setUsername] = useState(null);
+
   const getNotes = async ()=>{
     const response = await axios.get("http://localhost:8080/notes");
     setNotes(response.data.notes);
@@ -16,7 +19,30 @@ function App() {
 
   useEffect(()=>{
     getNotes();
-  },[])
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+
+  },[username])
+
+  function handleLoginPressed(){
+    setShowLogin(!showLogin);
+  }
+  function exitLogin(){
+    setShowLogin(false);
+  };
+  async function handleSignOutPressed(){
+    const response = await axios.post("http://localhost:8080/signout");
+    setUsername(null);
+    localStorage.removeItem("username");
+  }
+  async function handleLogin(username) {
+    setUsername(username);
+    localStorage.setItem("username", username);
+    console.log(username);
+    
+  }
 
   async function addNote(note) {
 
@@ -51,6 +77,7 @@ function App() {
     })
     
   }
+ 
   async function editNote(id, title, content) {
     const postData = {
       id:id,
@@ -75,8 +102,9 @@ function App() {
 
   return (
     <div>
-      <Header />
-      <CreateArea addNote={addNote} />
+      <Header username = {username} handlePress = {username ? handleSignOutPressed : handleLoginPressed}/>
+      {showLogin && <Login exitLogin = {exitLogin} handleLogin = {handleLogin}/>}
+      <CreateArea addNote={addNote} showLogin = {showLogin}/>
       {notes.map((note, index) => {
         return (
           <Note
