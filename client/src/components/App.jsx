@@ -18,13 +18,29 @@ function App() {
   };
 
   useEffect(()=>{
-    getNotes();
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-      setUsername(storedUsername);
+    const verifySession = async ()=>{
+      try{
+        const response = await axios.get("http://localhost:8080/check-session");
+        return response.data.loggedIn;
+      }catch(error){
+        return false;
+      }
     }
-
-  },[username])
+    const checkUser = async () => {
+      const storedUsername = localStorage.getItem("username");
+  
+      if (storedUsername) {
+        const isSessionValid = await verifySession(); 
+        if (isSessionValid) {
+          setUsername(storedUsername);
+        } else {
+          localStorage.removeItem("username");
+        }
+      }
+    };
+  
+    checkUser();
+  },[])
 
   function handleLoginPressed(){
     setShowLogin(!showLogin);
@@ -36,10 +52,12 @@ function App() {
     const response = await axios.post("http://localhost:8080/signout");
     setUsername(null);
     localStorage.removeItem("username");
+    getNotes();
   }
   async function handleLogin(username) {
     setUsername(username);
     localStorage.setItem("username", username);
+    getNotes();
     console.log(username);
     
   }

@@ -180,6 +180,14 @@ app.post("/signout", (req, res) => {
   res.json(resData);
 });
 
+app.get("/check-session", (req, res) => {
+  if (userId) {
+    res.json({ loggedIn: true});
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
