@@ -5,16 +5,20 @@ import CheckIcon from '@mui/icons-material/Check';
 import "../../public/styles.css";
 
 
-
+// note element
 function Note(props) {
+  // note contents
   const [title, setTitle] = useState(props.title);
   const [content, setContent] = useState(props.content);
+  // editing status of the note
   const [editing, setEditing ] = useState(false);
 
+  // handles confirm button press when editing a note
   const handleSubmit = ()=>{
     props.editNote(props.id, title, content);
   }
 
+  //sets up the note element on load
   useEffect(()=>{
     setTitle(props.title);
     setContent(props.content);
