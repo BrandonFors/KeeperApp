@@ -26,6 +26,7 @@ function Note(props) {
 
   return (
     <div className="note">
+      {/* displays editable text areas if in editing mode */}
       {editing ? (
         <>
           <input
@@ -43,13 +44,14 @@ function Note(props) {
             placeholder="Content"
           />
         </>
+        // displays uneditable text boxes if not in editing mode
       ) : (
         <>
           <h1>{title}</h1>
           <p>{content}</p>
         </>
       )}
-      
+      {/* delete button */}
       <button
         onClick={() => {
           props.deleteNote(props.id);
@@ -57,6 +59,8 @@ function Note(props) {
       >
         <DeleteIcon />
       </button>
+      {/* button that turns editing on or off */}
+      {/* includes a submit function that saves modifications made while in edit mode */}
       <button
       onClick={() => {
         if(!editing){
