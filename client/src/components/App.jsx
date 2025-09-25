@@ -14,41 +14,38 @@ function App() {
 
     //retrives notes list from the backend
   const getNotes = async ()=>{
-    const response = await axios.get("http://localhost:8080/notes");
+
+    const response = await axios.get("http://localhost:8080/notes",{
+      username: localStorage.getItem("username"),
+    });
     setNotes(response.data.notes);
   };
 
   //useEffect that updates the displayed username based on if the backend thinks the user is logged in or not
   useEffect(()=>{
-    //verifies that the backend still has the user logged in 
-    const verifySession = async ()=>{
-      try{
-        const response = await axios.get("http://localhost:8080/check-session");
-        return response.data.loggedIn;
-      }catch(error){
-        return false;
-      }
-    }
-    //
     const checkUser = async () => {
       //gets the username from localstorage
       const storedUsername = localStorage.getItem("username");
       //if the there was a stored username in the first place
       if (storedUsername) {
-        const isSessionValid = await verifySession(); 
-        if (isSessionValid) {
-          //set the username state to the stored username
-          setUsername(storedUsername);
-        } else {
-          //remove the stored username from localstorage
-          localStorage.removeItem("username");
+        //set the username state to the stored username
+        setUsername(storedUsername);
+        getNotes(storedUsername);
+      }else{
+        let localNotes = localStorage.getItem("notes");
+        if(localNotes){
+          setNotes(localNotes);
         }
       }
     };
   
     checkUser();
-    getNotes();
   },[])
+
+  useEffect(()=>{
+    localStorage.setItem("notes", notes);
+  }, [notes])
+
   //if the login is presed, show the login pannel
   function handleLoginPressed(){
     setShowLogin(!showLogin);
@@ -59,11 +56,10 @@ function App() {
   };
   //if signout is pressed tell the backend the user is signing out and remove the username from local storage
   async function handleSignOutPressed(){
-    const response = await axios.post("http://localhost:8080/signout");
     setUsername(null);
     localStorage.removeItem("username");
-    //refresh notes from backend
-    getNotes();
+
+    setNotes([]);
   }
   //if a login is triggered set username state to the input name and store the name in localstorage 
   async function handleLogin(username) {
@@ -81,16 +77,19 @@ function App() {
       content: note.content,
     }
     //post data to backend as a new note
-    const response = await axios.post("http://localhost:8080/new",postData);
-    //use the assigned id by backend and input note details to create a new note copy locally
-    const newNote = {
-      id:response.data.id,
-      title: note.title,
-      content: note.content,
+    const response = null;
+
+    if(username){
+      response = await axios.post("http://localhost:8080/new",postData);
     }
+    //use the assigned id by backend and input note details to create a new note copy locally
     //add the new note to the notes list
     setNotes((prevValue) => {
-      return [...prevValue,newNote];
+      return [...prevValue,{
+      id: response ? response.data.id : prevValue.length,
+      title: note.title,
+      content: note.content,
+    }];
     });
   }
   //delete a note

@@ -3,12 +3,14 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const pg = require("pg");
+const dotenv = require('dotenv');
+dotenv.config();
 // const corsOptions = {
 //     origin: "http://localhost:5173/",
 // }
 
 const app = express();
-const port = 8080;
+const port = process.env.PORT;
 
 let userId = null;
 //only used when userId is null
@@ -20,11 +22,11 @@ app.use(cors());
 // app.use(cors(corsOptions))
 // set up postgres client locally
 const db = new pg.Client({
-  user: "postgres",
-  host: "localhost",
-  database: "keeperapp",
-  password: "klikmeNow",
-  port: 5432,
+  user: process.env.PG_USER,
+  host: process.env.PG_HOST,
+  database: process.env.PG_DATABASE,
+  password: process.env.PG_PASSWORD,
+  port: process.env.PG_PORT,
 });
 
 // attempt to connect to database
