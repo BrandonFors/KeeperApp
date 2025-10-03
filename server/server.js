@@ -4,6 +4,8 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const pg = require("pg");
 const dotenv = require('dotenv');
+const jwt = require('jsonwebtoken');
+
 dotenv.config();
 // const corsOptions = {
 //     origin: "http://localhost:5173/",
@@ -11,10 +13,8 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
+const JWT_SECRET = process.env.JWT_SECRET;
 
-let userId = null;
-//only used when userId is null
-let notesList = [];
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -37,8 +37,24 @@ try {
   process.exit(1);
 }
 
+function verifyToken(req, res, next){
+  const authHeader = req.header('Authorization');
+  const token = authHeader && authHeader.split(' ')[1];
+  if(!token){
+    return res.status(401).json({error: "Access denied"});
+  }
+  try{
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.userId;
+    next();
+  }catch(error){
+    res.status(401).json({error: "Invalid token"});
+  }
+}
+
+
 // endpoint to get notes from the database
-app.get("/notes", async (req, res) => {
+app.get("/notes", verifyToken,  async (req, res) => {
   let notesArray = [];
   // if a login (userId) is present, use the user id to fetch notes from the database
   if (userId) {
@@ -57,7 +73,7 @@ app.get("/notes", async (req, res) => {
 });
 
 // endpoint to create a new note
-app.post("/new", async (req, res) => {
+app.post("/new", verifyToken, async (req, res) => {
   //get submitted title and content from the request body 
   const { title, content } = req.body;
   //to store created id
@@ -89,7 +105,7 @@ app.post("/new", async (req, res) => {
 });
 
 //endpoint to update a note item 
-app.post("/update", async (req, res) => {
+app.post("/update", verifyToken, async (req, res) => {
   //get note details from the request body
   const { id, title, content } = req.body;
   //if the suer is logged in, modify the note in the database
@@ -110,7 +126,7 @@ app.post("/update", async (req, res) => {
 });
 
 //endpoint to delete a note
-app.post("/delete", async (req, res) => {
+app.post("/delete", verifyToken, async (req, res) => {
   //get the id from the request body
   const { id } = req.body;
   //if the user is logged in, delete the note from the database
@@ -197,16 +213,22 @@ app.post("/signup", async (req, res) => {
   //hash the password
   const hashedPassword = await bcrypt.hash(password, 10);
   //create response object
-  let resData = {
-    success: true,
-    message: "User signed up.",
-  };
+
+  let resData; 
   //try to insert username and password into the users database
   try {
     const result = await db.query(
       "INSERT INTO users (username, password) VALUES($1,$2) RETURNING id",
       [lowUsername, hashedPassword]
     );
+    const token = jwt.sign({userId: username._id}, JWT_SECRET, {
+      expiresIn: '24h',
+    })
+    resData = {
+      success: true,
+      message: "User signed up.",
+      token:token 
+    };
   //if error occurs, log a failed attempt
   } catch (error) {
     resData.success = false;
@@ -220,29 +242,7 @@ app.post("/signup", async (req, res) => {
   //send back response data
   res.json(resData);
 });
-//signout endpoint
-app.post("/signout", (req, res) => {
-  //gets rid of the userId from the server 
-  userId = null;
-  let resData = {
-    success: true,
-    message: "User has been logged out.",
-  };
-  //send back data
-  res.json(resData);
-});
 
-//endpoint to check the server session for login
-app.get("/check-session", (req, res) => {
-  //if a userId is present, let the frontend know
-  if (userId) {
-    res.json({ loggedIn: true});
-
-  //otherwise, say there is no id present
-  } else {
-    res.json({ loggedIn: false });
-  }
-});
 
 //start server
 app.listen(port, () => {
